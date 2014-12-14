@@ -1,14 +1,10 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
-```{r results='hide', message=FALSE, warning=FALSE, echo=TRUE}
+
+```r
 #install.packages("ggplot2")
 #install.packages("scales")
 #install.packages("lubridate")
@@ -26,8 +22,8 @@ activities$datetime$hour <- activities$datetime$hour + activities$interval %/% 1
 
 ## What is mean total number of steps taken per day?
 
-```{r,echo=TRUE}
 
+```r
 x <- round(tapply(activities$steps, activities$date, sum, na.rm = TRUE))
 stepsbydateNA <- data.frame(date=names(x), stepsNA=x)
 
@@ -35,20 +31,38 @@ stepsmean <- round(mean(stepsbydateNA$stepsNA, na.rm = TRUE))
 stepsmedian <- round(median(stepsbydateNA$stepsNA, na.rm = TRUE))
 
 paste("Mean steps (NAs included)", stepsmean)
-paste("Median steps (NAs included)", stepsmedian)
+```
 
+```
+## [1] "Mean steps (NAs included) 9354"
+```
+
+```r
+paste("Median steps (NAs included)", stepsmedian)
+```
+
+```
+## [1] "Median steps (NAs included) 10395"
+```
+
+```r
 g <- ggplot(stepsbydateNA, aes(x=stepsNA))
 g <- g + geom_histogram() + geom_vline(xintercept=stepsmedian, linetype = "dashed")
 g
-
 ```
 
-Before the NAs are imputed, the mean total steps taken per day is `r stepsmean`, and the median total steps taken per day is `r stepsmedian`.
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-2](PA1_template_files/figure-html/unnamed-chunk-2.png) 
+
+Before the NAs are imputed, the mean total steps taken per day is 9354, and the median total steps taken per day is 1.0395 &times; 10<sup>4</sup>.
 
 ## What is the average daily activity pattern?
 
-```{r,echo=TRUE}
 
+```r
 # average steps by 5 minute interval
 x <- round(tapply(activities$steps, activities$interval, mean, na.rm=TRUE))
 stepsbyinterval <- data.frame(interval=names(x), steps=x)
@@ -66,18 +80,31 @@ stepsbyinterval$time <- as.numeric(stepsbyinterval$datetime - trunc(stepsbyinter
 stepsbyinterval$time <- as.Date(Sys.time()) + seconds(stepsbyinterval$time)
 
 ggplot(stepsbyinterval, aes(x=time, y=steps)) + geom_line() + scale_x_datetime(labels = date_format("%H:00"))
+```
 
+![plot of chunk unnamed-chunk-3](PA1_template_files/figure-html/unnamed-chunk-3.png) 
+
+```r
 busiest5minuteinterval <- stepsbyinterval$interval[stepsbyinterval$steps == max(stepsbyinterval$steps)]
 paste("Busiest 5 minute interval", busiest5minuteinterval, "; ", max(stepsbyinterval$steps), " steps.")
+```
 
+```
+## [1] "Busiest 5 minute interval 835 ;  206  steps."
 ```
 
 ## Imputing missing values
 
-```{r,echo=TRUE}
 
+```r
 paste("There are", sum(is.na(activities$steps)), "missing step values")
+```
 
+```
+## [1] "There are 2304 missing step values"
+```
+
+```r
 nu <- activities
 
 # calculate mean steps for each 5 minute interval 
@@ -99,15 +126,34 @@ g <- ggplot(stepsbydate, aes(x=stepsNA))
 g <- g + geom_histogram() + geom_vline(xintercept=stepsmean) +
   geom_vline(xintercept=stepsmedian, linetype = "dashed")
 g
+```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-4](PA1_template_files/figure-html/unnamed-chunk-4.png) 
+
+```r
 paste("Mean steps: ", stepsmean)
-paste("Median steps: ", stepsmedian)
+```
 
+```
+## [1] "Mean steps:  10766"
+```
+
+```r
+paste("Median steps: ", stepsmedian)
+```
+
+```
+## [1] "Median steps:  10762"
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r,echo=TRUE}
+
+```r
 nu$weekend <- as.factor(ifelse(
   weekdays(nu$datetime) %in% c('Saturday', 'Sunday'), 'weekend', 'weekday'))
 
@@ -148,7 +194,7 @@ stepsbyinterval$time <- as.Date(Sys.time()) + seconds(stepsbyinterval$time)
 p <- ggplot(stepsbyinterval, aes(x=time, y=steps)) + geom_line() + scale_x_datetime(labels = date_format("%H:00"))
 
 p + facet_grid (weekend ~ .)
-
-
 ```
+
+![plot of chunk unnamed-chunk-5](PA1_template_files/figure-html/unnamed-chunk-5.png) 
 
